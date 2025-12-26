@@ -79,7 +79,7 @@ struct DefaultPageView: View {
                                 .border(Color.yellow.opacity(0.5), width: 1) // Yellow border to match brand
                         }
 
-                        Text("What's On The Set Nearby")
+                        Text("What's On Tha Set Nearby")
                             .font(.title2.bold())
                             .foregroundColor(.yellow)
 
