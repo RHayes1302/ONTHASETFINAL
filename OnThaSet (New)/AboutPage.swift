@@ -18,37 +18,13 @@ struct AboutView: View {
             Color.black.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // 1. BRANDED HIGHWAY SHIELD HEADER
-                VStack(spacing: 0) {
-                    ZStack {
-                        Image(systemName: "shield.fill")
-                            .font(.system(size: 70))
-                            .foregroundColor(.yellow)
-                        
-                        VStack(spacing: -2) {
-                            Text("ON")
-                                .font(.system(size: 12))
-                                .fontWeight(.black)
-                                .foregroundColor(.black)
-                            Text("THA")
-                                .font(.system(size: 10))
-                                .fontWeight(.black)
-                                .foregroundColor(.black)
-                            Text("SET")
-                                .font(.system(size: 16))
-                                .fontWeight(.black)
-                                .foregroundColor(.black)
-                        }
-                        .offset(y: -3)
-                    }
-                }
-                .padding(.top, 30)
-                .padding(.bottom, 20)
+                // 1. BRANDED HEADER WITH YELLOW CHEVRON
+                headerSection
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 25) {
                         
-                        // 2. WE ACCEPT SECTION (With Official Apple Pay Fix)
+                        // 2. WE ACCEPT SECTION
                         VStack(alignment: .leading, spacing: 15) {
                             Text("WE ACCEPT")
                                 .font(.caption.bold())
@@ -58,7 +34,6 @@ struct AboutView: View {
                                 .background(Color.yellow)
                             
                             HStack(spacing: 15) {
-                                // FIXED APPLE PAY LOGO
                                 VStack(spacing: 8) {
                                     HStack(spacing: 2) {
                                         Image(systemName: "applelogo")
@@ -176,7 +151,7 @@ struct AboutView: View {
                             Text("Version 1.0.0")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(.gray)
-                            Text("© 2025 ON-THA-SET")
+                            Text("© 2026 ON-THA-SET") // Updated to current year
                                 .font(.system(size: 10))
                                 .foregroundColor(.gray.opacity(0.6))
                         }
@@ -186,6 +161,41 @@ struct AboutView: View {
                 }
             }
         }
+        .navigationBarHidden(true)
+    }
+    
+    // New Header Section helper
+    private var headerSection: some View {
+        HStack {
+            Button(action: { dismiss() }) {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.yellow)
+                    .font(.system(size: 20, weight: .bold))
+            }
+            
+            Spacer()
+            
+            ZStack {
+                Image(systemName: "shield.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(.yellow)
+                
+                VStack(spacing: -2) {
+                    Text("ON").font(.system(size: 10, weight: .black))
+                    Text("THA").font(.system(size: 8, weight: .black))
+                    Text("SET").font(.system(size: 14, weight: .black))
+                }
+                .foregroundColor(.black)
+                .offset(y: -2)
+            }
+            
+            Spacer()
+            
+            // Mirror the back button for centering
+            Image(systemName: "chevron.left").opacity(0)
+        }
+        .padding(.horizontal, 25)
+        .padding(.top, 20)
     }
     
     func signOut() {
@@ -231,7 +241,7 @@ struct PaymentIcon: View {
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 30)) // Slightly larger for balance
+                .font(.system(size: 30))
                 .foregroundColor(color)
                 .frame(height: 35)
             Text(label)

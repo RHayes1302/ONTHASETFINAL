@@ -29,9 +29,33 @@
 		996BBC882EE23EE800C4A68C /* OnThaSet (New)UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "OnThaSet (New)UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9990F3BC2F20982500525F89 /* Exceptions for "OnThaSet (New)" folder in "OnThaSet (New)" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swift,
+			);
+			target = 996BBC6E2EE23EE700C4A68C /* OnThaSet (New) */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		9990F3BD2F20982500525F89 /* Exceptions for "OnThaSet (New)" folder in "Compile Sources" phase from "OnThaSet (New)" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 996BBC6B2EE23EE700C4A68C /* Sources */;
+			membershipExceptions = (
+				.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		996BBC712EE23EE700C4A68C /* OnThaSet (New) */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9990F3BC2F20982500525F89 /* Exceptions for "OnThaSet (New)" folder in "OnThaSet (New)" target */,
+				9990F3BD2F20982500525F89 /* Exceptions for "OnThaSet (New)" folder in "Compile Sources" phase from "OnThaSet (New)" target */,
+			);
 			path = "OnThaSet (New)";
 			sourceTree = "<group>";
 		};

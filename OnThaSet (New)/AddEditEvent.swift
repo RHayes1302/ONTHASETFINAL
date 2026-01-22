@@ -20,7 +20,11 @@ struct AddEditEventView: View {
     
     @State private var title: String = ""
     @State private var date: Date = Date()
-    @State private var locationName: String = ""
+    @State private var venueName: String = ""
+    @State private var streetAddress: String = ""
+    @State private var cityName: String = ""
+    @State private var stateName: String = ""
+    @State private var zipCode: String = ""
     @State private var category: EventCategory = .community
     @State private var details: String = ""
     @State private var securityCode: String = ""
@@ -28,6 +32,12 @@ struct AddEditEventView: View {
     @State private var showPaymentAlert = false
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImageData: Data?
+    
+    // Computed property to check if form is valid
+    private var isFormValid: Bool {
+        !title.trimmingCharacters(in: .whitespaces).isEmpty &&
+        !securityCode.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 
     var body: some View {
         ZStack {
@@ -74,7 +84,7 @@ struct AddEditEventView: View {
             Button(action: { dismiss() }) {
                 Image(systemName: "xmark")
                     .foregroundColor(.yellow)
-                    .font(.title3.bold())
+                    .font(.title2.bold())
             }
             Spacer()
             ZStack {
@@ -126,11 +136,49 @@ struct AddEditEventView: View {
     private var formFields: some View {
         VStack(spacing: 18) {
             fieldContainer(label: "EVENT TITLE") {
-                TextField("Set Name", text: $title).modifier(FormTextFieldStyle())
+                TextField("Set Name", text: $title)
+                    .modifier(FormTextFieldStyle())
             }
-            fieldContainer(label: "LOCATION") {
-                TextField("Venue / Address", text: $locationName).modifier(FormTextFieldStyle())
+            
+            fieldContainer(label: "EVENT DATE & TIME") {
+                DatePicker("", selection: $date, displayedComponents: [.date, .hourAndMinute])
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .colorScheme(.dark)
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(8)
             }
+            
+            fieldContainer(label: "VENUE NAME") {
+                TextField("e.g., The Hideout", text: $venueName)
+                    .modifier(FormTextFieldStyle())
+            }
+            
+            fieldContainer(label: "STREET ADDRESS") {
+                TextField("e.g., 4211 Fossatello Ave", text: $streetAddress)
+                    .modifier(FormTextFieldStyle())
+            }
+            
+            HStack(spacing: 12) {
+                fieldContainer(label: "CITY") {
+                    TextField("Las Vegas", text: $cityName)
+                        .modifier(FormTextFieldStyle())
+                }
+                
+                fieldContainer(label: "STATE") {
+                    TextField("NV", text: $stateName)
+                        .modifier(FormTextFieldStyle())
+                }
+                .frame(width: 80)
+            }
+            
+            fieldContainer(label: "ZIP CODE") {
+                TextField("89084", text: $zipCode)
+                    .modifier(FormTextFieldStyle())
+                    .keyboardType(.numberPad)
+            }
+            
             fieldContainer(label: "DETAILS") {
                 TextField("Description", text: $details, axis: .vertical)
                     .lineLimit(3...5)
@@ -167,7 +215,6 @@ struct AddEditEventView: View {
         VStack(spacing: 15) {
             Text("PAYMENT METHOD").font(.caption2.bold()).foregroundColor(.yellow).frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: 10) {
-                // FIXED APPLE PAY BUTTON
                 Button(action: { showPaymentAlert = true }) {
                     HStack(spacing: 4) {
                         Image(systemName: "applelogo")
@@ -186,7 +233,7 @@ struct AddEditEventView: View {
                 payBtn(label: "Cash App", color: .green) { openURL("https://cash.app/") }
             }
             fieldContainer(label: "SECURITY PIN (REQUIRED)") {
-                SecureField("4-digit pin", text: $securityCode)
+                TextField("4-digit pin", text: $securityCode)
                     .modifier(FormTextFieldStyle())
                     .keyboardType(.numberPad)
             }
@@ -206,16 +253,19 @@ struct AddEditEventView: View {
     }
 
     private var submitButtonSection: some View {
-        Button(action: { showPaymentAlert = true }) {
+        Button(action: {
+            print("Button tapped - Title: '\(title)', Code: '\(securityCode)'")
+            showPaymentAlert = true
+        }) {
             Text("CONFIRM & POST")
                 .font(.headline.bold())
                 .foregroundColor(.black)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(!title.isEmpty && !securityCode.isEmpty ? Color.yellow : Color.gray)
+                .background(isFormValid ? Color.yellow : Color.gray)
                 .cornerRadius(12)
         }
-        .disabled(title.isEmpty || securityCode.isEmpty)
+        .disabled(!isFormValid)
         .padding()
     }
 
@@ -236,7 +286,32 @@ struct AddEditEventView: View {
         if !eventToEdit.title.isEmpty {
             title = eventToEdit.title
             date = eventToEdit.date
-            locationName = eventToEdit.locationName
+            
+            // Parse: "VenueName|Street|City|State|ZIP" (new format)
+            let parts = eventToEdit.locationName.split(separator: "|").map { String($0) }
+            
+            if parts.count >= 5 {
+                // New format: VenueName|Street|City|State|ZIP
+                venueName = parts[0]
+                streetAddress = parts[1]
+                cityName = parts[2]
+                stateName = parts[3]
+                zipCode = parts[4]
+            } else if parts.count == 3 {
+                // Old format: VenueName|CityName|FullAddress
+                venueName = parts[0]
+                cityName = parts[1]
+                // Try to parse the full address if possible
+                let addressParts = parts[2].components(separatedBy: ",")
+                if addressParts.count >= 2 {
+                    streetAddress = addressParts[0].trimmingCharacters(in: .whitespaces)
+                }
+            } else if parts.count == 2 {
+                // Very old format: VenueName|Address
+                venueName = parts[0]
+                streetAddress = parts[1]
+            }
+            
             category = eventToEdit.category
             details = eventToEdit.details
             securityCode = eventToEdit.securityCode
@@ -246,12 +321,19 @@ struct AddEditEventView: View {
     }
 
     func saveData() {
+        // Construct full address for geocoding
+        let fullAddress = "\(streetAddress), \(cityName), \(stateName) \(zipCode)"
+        
         let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(locationName) { placemarks, _ in
+        geocoder.geocodeAddressString(fullAddress) { placemarks, _ in
             let coordinate = placemarks?.first?.location?.coordinate
+            
+            // Storage format: VenueName|Street|City|State|ZIP
+            let combinedLocation = "\(venueName)|\(streetAddress)|\(cityName)|\(stateName)|\(zipCode)"
+            
             let finalEvent = Event(
                 title: title, date: date, category: category,
-                locationName: locationName, details: details,
+                locationName: combinedLocation, details: details,
                 securityCode: securityCode, price: price,
                 latitude: coordinate?.latitude ?? 0.0,
                 longitude: coordinate?.longitude ?? 0.0

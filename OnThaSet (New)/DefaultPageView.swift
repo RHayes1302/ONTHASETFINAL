@@ -12,7 +12,7 @@ import AuthenticationServices
 struct DefaultPageView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Event.date) private var allEvents: [Event]
-    @Query private var profiles: [UserProfile] // Tracks user login and post count
+    @Query private var profiles: [UserProfile]
     
     @StateObject private var locationManager = LocationManager()
     @State private var showingLogin = false
@@ -27,11 +27,11 @@ struct DefaultPageView: View {
                 ScrollView {
                     VStack(spacing: 30) {
                         
-                        // 1. BRANDED HIGHWAY SHIELD HEADER (Text Removed for Clean Look)
+                        // 1. BRANDED HIGHWAY SHIELD HEADER
                         VStack(spacing: 0) {
                             ZStack {
                                 Image(systemName: "shield.fill")
-                                    .font(.system(size: 85)) // Slightly larger since it's the solo star
+                                    .font(.system(size: 85))
                                     .foregroundColor(.yellow)
                                 
                                 VStack(spacing: -2) {
@@ -51,33 +51,13 @@ struct DefaultPageView: View {
                         .padding(.top, 50)
                         .padding(.bottom, 10)
 
-                        // 2. FEATURED CARDS OR PLACEHOLDER
-                        if !allEvents.isEmpty {
-                            VStack(alignment: .leading, spacing: 15) {
-                                Text("HOTTEST SETS")
-                                    .font(.system(size: 22, weight: .black))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal)
-                                
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 20) {
-                                        ForEach(allEvents) { event in
-                                            NavigationLink(destination: EventDetailView(event: event)) {
-                                                MeanEventCard(event: event)
-                                            }
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                }
-                            }
-                        } else {
-                            Image("ONTHASET")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 280, height: 280)
-                                .clipped()
-                                .border(Color.yellow.opacity(0.5), width: 1) // Yellow border to match brand
-                        }
+                        // 2. LOGO PLACEHOLDER (Always visible)
+                        Image("ONTHASET")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 280, height: 280)
+                            .clipped()
+                            .border(Color.yellow.opacity(0.5), width: 1)
 
                         Text("What's On Tha Set Nearby")
                             .font(.title2.bold())
@@ -94,6 +74,15 @@ struct DefaultPageView: View {
                                 makeMenuButton(text: "EVENTS NEARBY")
                             }
                             .simultaneousGesture(TapGesture().onEnded {
+                                locationManager.requestLocation()
+                            })
+                            
+                            // NEW: WEATHER FORECAST BUTTON
+                            NavigationLink(destination: WeatherView()) {
+                                makeMenuButton(text: "RIDE FORECAST")
+                            }
+                            .simultaneousGesture(TapGesture().onEnded {
+                                // Request location for auto-populated weather
                                 locationManager.requestLocation()
                             })
 

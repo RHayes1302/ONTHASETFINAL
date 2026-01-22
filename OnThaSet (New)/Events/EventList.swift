@@ -10,6 +10,8 @@ import SwiftData
 
 struct EventHomeView: View {
     @Environment(\.modelContext) private var modelContext
+    // 1. BACK BUTTON LOGIC: Environment variable to allow the view to close
+    @Environment(\.dismiss) var dismiss
     @Query(sort: \Event.date) private var events: [Event]
     
     @State private var viewMode: ViewMode
@@ -29,7 +31,7 @@ struct EventHomeView: View {
             Color.black.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // 1. YELLOW HIGHWAY SIGN HEADER LOGO
+                // YELLOW HIGHWAY SIGN HEADER LOGO
                 VStack(spacing: -5) {
                     ZStack {
                         // The Highway Shield Shape - YELLOW
@@ -72,7 +74,21 @@ struct EventHomeView: View {
             }
         }
         .navigationTitle("") // Shield acts as the title
+        // 2. BACK BUTTON LOGIC: Hide the default blue back button
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            // 3. BACK BUTTON LOGIC: Add the yellow chevron on the left
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.yellow)
+                }
+            }
+            
+            // Existing Trailng Add Button
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingAddSheet = true }) {
                     Image(systemName: "plus.diamond.fill") // Diamond shape like a road sign
