@@ -5,20 +5,19 @@
 //  Created by Ramone Hayes on 12/7/25.
 //
 
-import SwiftUI  // <--- This is the missing piece
-import SwiftData // You also need this to access your Events
-
+import SwiftUI
+import SwiftData
 
 struct EventRow: View {
     let event: Event
     
     var body: some View {
         HStack(spacing: 15) {
-            // Mini Flyer Thumbnail
+            // ✅ MINI FLYER THUMBNAIL - SHOWS ENTIRE IMAGE
             if let data = event.imageData, let uiImage = UIImage(data: data) {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit() // Changed from scaledToFill to scaledToFit
                     .frame(width: 80, height: 80)
                     .cornerRadius(8)
                     .clipped()
@@ -38,9 +37,19 @@ struct EventRow: View {
                     .font(.subheadline)
                     .foregroundColor(.yellow)
                 
-                Label(event.locationName, systemImage: "mappin")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                // Parse location to show venue name
+                let locationParts = event.locationName.split(separator: "|").map { String($0) }
+                if let venueName = locationParts.first {
+                    Label(venueName, systemImage: "mappin")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                } else {
+                    Label(event.locationName, systemImage: "mappin")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                }
             }
             
             Spacer()

@@ -4,6 +4,8 @@
 //
 //  Created by Ramone Hayes on 1/16/26.
 //
+
+
 import SwiftUI
 import CoreLocation
 
@@ -139,7 +141,6 @@ class WeatherViewModel: ObservableObject {
         errorMessage = ""
     }
     
-    // Search weather using GPS coordinates (more accurate for events!)
     func searchWeatherByCoordinates(latitude: Double, longitude: Double, locationName: String) async {
         print("🎯 Searching weather by GPS: \(latitude), \(longitude)")
         self.isLoading = true
@@ -148,37 +149,23 @@ class WeatherViewModel: ObservableObject {
         
         let weatherURL = "https://api.open-meteo.com/v1/forecast?latitude=\(latitude)&longitude=\(longitude)&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=fahrenheit&windspeed_unit=mph"
         
-        print("🌐 Weather URL: \(weatherURL)")
-        
         do {
             guard let wUrl = URL(string: weatherURL) else {
-                print("❌ Invalid weather URL")
                 self.isLoading = false
                 return
             }
-            
             let (wData, _) = try await URLSession.shared.data(from: wUrl)
-            print("✅ Weather response received")
-            
             let wResult = try JSONDecoder().decode(ForecastResponse.self, from: wData)
-            print("✅ Weather decoded successfully")
-            
             self.parseWeather(wResult, name: locationName)
-            print("✅ Weather parsed and displayed")
         } catch {
             print("❌ Weather error: \(error.localizedDescription)")
             self.errorMessage = "Failed to load weather"
         }
         
         self.isLoading = false
-        print("🏁 GPS search complete. Forecasts: \(self.dailyForecasts.count)")
     }
     
-    // Fetch weather by CLLocation (for current user location)
     func fetchWeatherByLocation(_ location: CLLocation) async {
-        print("📍 Fetching weather for user location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-        
-        // Use reverse geocoding to get city name
         let geocoder = CLGeocoder()
         do {
             let placemarks = try await geocoder.reverseGeocodeLocation(location)
@@ -189,8 +176,6 @@ class WeatherViewModel: ObservableObject {
                 locationName: cityName
             )
         } catch {
-            print("❌ Reverse geocoding failed: \(error)")
-            // Still fetch weather, just without city name
             await searchWeatherByCoordinates(
                 latitude: location.coordinate.latitude,
                 longitude: location.coordinate.longitude,

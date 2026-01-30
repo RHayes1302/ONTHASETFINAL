@@ -70,8 +70,10 @@ struct AddEditEventView: View {
         .onAppear { loadInitialData() }
         .onChange(of: selectedItem) { _, newItem in
             Task {
-                if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                    selectedImageData = data
+                if let data = try? await newItem?.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    // ✅ COMPRESS IMAGE BEFORE STORING
+                    selectedImageData = ImageCompressor.compress(uiImage, maxSizeKB: 500)
                 }
             }
         }
@@ -110,11 +112,12 @@ struct AddEditEventView: View {
         PhotosPicker(selection: $selectedItem, matching: .images) {
             ZStack {
                 if let data = selectedImageData, let uiImage = UIImage(data: data) {
+                    // ✅ SHOW ENTIRE FLYER WITH PROPER ASPECT FIT
                     Image(uiImage: uiImage)
                         .resizable()
-                        .scaledToFill()
-                        .frame(height: 180)
+                        .scaledToFit()
                         .frame(maxWidth: .infinity)
+                        .frame(height: 220)
                         .cornerRadius(12)
                         .clipped()
                 } else {

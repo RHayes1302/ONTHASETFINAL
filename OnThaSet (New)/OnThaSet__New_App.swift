@@ -13,8 +13,11 @@ struct OnThaSetApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(authService)
+            // Wrap DefaultPageView with AppCoordinatorView for location authorization
+            AppCoordinatorView {
+                DefaultPageView()
+                    .environmentObject(authService)
+            }
         }
         .modelContainer(for: [Event.self, UserProfile.self])
     }

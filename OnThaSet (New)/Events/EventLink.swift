@@ -7,16 +7,15 @@
 import SwiftUI
 
 struct EventLinkItem: View {
-    // 1. Change @Binding to a simple 'var'
-    var event: Event 
+    var event: Event
     
     var body: some View {
         HStack(spacing: 12) {
-            // 2. Remove the '$' - use the property directly from the object
-            if let image = event.image { 
+            // ✅ SHOW ENTIRE IMAGE WITH PROPER ASPECT FIT
+            if let image = event.image {
                 Image(uiImage: image)
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit() // Changed from scaledToFill to scaledToFit
                     .frame(width: 55, height: 55)
                     .clipped()
                     .cornerRadius(8)
@@ -34,7 +33,6 @@ struct EventLinkItem: View {
             
             Spacer()
             
-            // 3. For the toggle, we create a manual binding to the property
             FavoriteToggle(isFavorite: Binding(
                 get: { event.isFavorite },
                 set: { event.isFavorite = $0 }
@@ -43,4 +41,3 @@ struct EventLinkItem: View {
         .padding(.vertical, 4)
     }
 }
-

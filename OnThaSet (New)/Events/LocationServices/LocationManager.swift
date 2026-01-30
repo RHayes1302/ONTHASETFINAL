@@ -17,11 +17,23 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
-        manager.requestWhenInUseAuthorization()
+        
+      
     }
     
+    
+    
+    
     func requestLocation() {
-        manager.requestLocation()
+      
+        if authorizationStatus == nil {
+            manager.requestWhenInUseAuthorization()
+            
+        }
+        if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
+            manager.requestLocation()
+        }
+        if authorizationStatus == .notDetermined{manager.requestLocation()}
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
